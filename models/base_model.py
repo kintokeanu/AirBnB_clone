@@ -64,6 +64,7 @@ class BaseModel:
         obj_dict['updated_at'] = self.updated_at.isoformat()
         return obj_dict
 
+
 # data = {
 #     "id": "123",
 #     "created_at": "2023-07-19T15:30:00.000000",
