@@ -23,6 +23,7 @@ class BaseModel:
         Keyword Args:
             created_at (str): The string representation of the datetime when the object was created.
             updated_at (str): The string representation of the datetime when the object was last updated.
+            Other attributes: Any other attributes to be set on the object.
         """
         if kwargs:
             for key, value in kwargs.items():
