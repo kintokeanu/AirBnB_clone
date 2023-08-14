@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime
 from models.base_model import BaseModel
 
+
 class TestBaseModel(unittest.TestCase):
 
     def setUp(self):
@@ -34,8 +35,10 @@ class TestBaseModel(unittest.TestCase):
         self.assertNotEqual(old_updated_at, self.base_model.updated_at)
 
     def test_str_method(self):
-        expected_str = "[BaseModel] ({}) {}".format(self.base_model.id, self.base_model.__dict__)
+        expected_str = "[BaseModel] ({}) {}".format(self.base_model.id,
+                                                    self.base_model.__dict__)
         self.assertEqual(str(self.base_model), expected_str)
+
 
 if __name__ == '__main__':
     unittest.main()
