@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+"""Docstring for the Basemodel"""
 import uuid
 from datetime import datetime
-from models import storage
+import models
 
 
 class BaseModel:
@@ -30,18 +31,20 @@ class BaseModel:
             when the object was last updated.
             Other attributes: Any other attributes to be set on the object.
         """
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.today()
+        self.updated_at = datetime.today()
         if kwargs:
             for key, value in kwargs.items():
-                if key == 'created_at' or key == 'updated_at':
-                    setattr(self, key, datetime.strptime(value,
-                            '%Y-%m-%dT%H:%M:%S.%f'))
-                elif key != '__class__':
-                    setattr(self, key, value)
-            storage.save()
+                if key == "__class__":
+                    pass
+                elif key != "created_at" and key != "updated_at":
+                    self.__dict__[key] = value
+                else:
+                    self.__dict__[key] = datetime.strptime(
+                        value, "%Y-%m-%dT%H:%M:%S.%f")
         else:
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = self.created_at
+            models.storage.new(self)
 
     def __str__(self):
         """
@@ -50,15 +53,15 @@ class BaseModel:
         Returns:
             str: The string representation of the object.
         """
-        return "[{}] ({}) {}".format(self.__class__.__name__, self.id,
-                                     self.__dict__)
+        return f"[{self.__class__.__name__}] ({self.id}) {self.__dict__}"
 
     def save(self):
         """
         Updates the updated_at attribute of the
         object with the current datetime.
         """
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.today()
+        models.storage.save()
 
     def to_dict(self):
         """
@@ -67,23 +70,8 @@ class BaseModel:
         Returns:
             dict: The dictionary representation of the object.
         """
-        obj_dict = self.__dict__.copy()
-        obj_dict['__class__'] = self.__class__.__name__
-        obj_dict['created_at'] = self.created_at.isoformat()
-        obj_dict['updated_at'] = self.updated_at.isoformat()
-        return obj_dict
-
-# data = {
-#     "id": "123",
-#     "created_at": "2023-07-19T15:30:00.000000",
-#     "updated_at": "2023-07-19T16:45:00.000000",
-#     "name": "John",
-#     "age": 30
-# }
-
-# instance = BaseModel(**data)
-# print(instance.id)
-# print(instance.created_at)
-# print(instance.updated_at)
-# print(instance.name)
-# print(instance.age)
+        copy = self.__dict__.copy()
+        copy["__class__"] = self.__class__.__name__
+        copy["created_at"] = self.created_at.isoformat()
+        copy["updated_at"] = self.updated_at.isoformat()
+        return copy
