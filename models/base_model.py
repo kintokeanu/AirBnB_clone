@@ -1,8 +1,8 @@
-#!/usr/bin/python3
-"""Docstring for the Basemodel"""
+#!/usr/bin/env python3
+"""Module for BaseModel class
+"""
 import uuid
 from datetime import datetime
-import models
 
 
 class BaseModel:
@@ -36,13 +36,11 @@ class BaseModel:
         self.updated_at = datetime.today()
         if kwargs:
             for key, value in kwargs.items():
-                if key == "__class__":
-                    pass
-                elif key != "created_at" and key != "updated_at":
-                    self.__dict__[key] = value
-                else:
-                    self.__dict__[key] = datetime.strptime(
-                        value, "%Y-%m-%dT%H:%M:%S.%f")
+                if key == 'created_at' or key == 'updated_at':
+                    setattr(self, key, datetime.strptime(value,
+                            '%Y-%m-%dT%H:%M:%S.%f'))
+                elif key != '__class__':
+                    setattr(self, key, value)
         else:
             models.storage.new(self)
 

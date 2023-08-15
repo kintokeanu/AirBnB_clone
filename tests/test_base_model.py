@@ -26,8 +26,15 @@ class TestBaseModel(unittest.TestCase):
         obj_dict = self.base_model.to_dict()
         self.assertIsInstance(obj_dict, dict)
         self.assertEqual(obj_dict['__class__'], 'BaseModel')
-        self.assertIsInstance(datetime.strptime(obj_dict['created_at'], '%Y-%m-%dT%H:%M:%S.%f'), datetime)
-        self.assertIsInstance(datetime.strptime(obj_dict['updated_at'], '%Y-%m-%dT%H:%M:%S.%f'), datetime)
+        self.assertIsInstance(
+            datetime.strptime(obj_dict['created_at'], '%Y-%m-%dT%H:%M:%S.%f'),
+            datetime
+        )
+
+        self.assertIsInstance(
+            datetime.strptime(obj_dict['updated_at'], '%Y-%m-%dT%H:%M:%S.%f'),
+            datetime
+        )
 
     def test_save_method(self):
         old_updated_at = self.base_model.updated_at

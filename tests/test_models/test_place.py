@@ -104,8 +104,10 @@ class TestPlace(unittest.TestCase):
         place_dict = place.to_dict()
         self.assertIsInstance(place_dict['created_at'], str)
         self.assertIsInstance(place_dict['updated_at'], str)
-        self.assertIsInstance(datetime.strptime(place_dict['created_at'], '%Y-%m-%dT%H:%M:%S.%f'), datetime)
-        self.assertIsInstance(datetime.strptime(place_dict['updated_at'], '%Y-%m-%dT%H:%M:%S.%f'), datetime)
+        self.assertIsInstance(datetime.strptime(place_dict['created_at']),
+                              '%Y-%m-%dT%H:%M:%S.%f', datetime)
+        self.assertIsInstance(datetime.strptime(place_dict['updated_at']),
+                              '%Y-%m-%dT%H:%M:%S.%f', datetime)
         self.assertEqual(place_dict['__class__'], 'Place')
         self.assertEqual(place_dict['city_id'], '')
         self.assertEqual(place_dict['user_id'], '')
