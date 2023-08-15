@@ -14,7 +14,6 @@ class HBNBCommand(cmd.Cmd):
     The class also supports importing data from a file and
     displaying a help message.
     """
-
     prompt = " (hbnb) "
     items = {}
 
@@ -53,7 +52,6 @@ class HBNBCommand(cmd.Cmd):
         if not arg:
             print("** class name missing **")
             return
-
         try:
             new_instance = eval(arg)()
             new_instance.save()
@@ -159,7 +157,6 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-
         try:
             class_name = args[0]
             instance_id = args[1]
