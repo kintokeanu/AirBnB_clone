@@ -1,191 +1,168 @@
 #!/usr/bin/python3
-"""This a Python made console command interpreter"""
+"""Console interpreter for airbnb clonee"""
 import cmd
-from models import storage
 from models.base_model import BaseModel
+from models.amenity import Amenity
+from models.review import Review
+from models.state import State
+from models.user import User
+import models
+from models.city import City
+from models.place import Place
 
 
 class HBNBCommand(cmd.Cmd):
     """
-    HBNBCommand is a command-line interface that allows users to
-    interact with a program by entering commands.
-    It provides various commands such as creating, destroying,
-    searching, modifying, and showing items.
-    The class also supports importing data from a file and
-    displaying a help message.
+    Create class HBNBCommand
     """
-    prompt = " (hbnb) "
-    items = {}
+    prompt = "(hbnb)"  # Set your custom prompt here
+    classes = [
+            'BaseModel', 'Amenity', 'City', 'Place', 'Review', 'State', 'User']
 
-    def do_quit(self, arg):
-        """Quit command to exit the program
-        """
+    def do_EOF(self, line):
+        """Checks end of file"""
         return True
 
-    def do_EOF(self, arg):
-        """EOF command to exit the program
-        """
+    def do_quit(self, arg):
+        """Quit command to exit the program"""
         return True
 
     def emptyline(self):
-        """Do nothing for an empty line
-        """
+        """Do nothing if empty line is passed"""
         pass
 
-    def help(self):
-        """Display a help message that lists the available commands
-        """
-        print("\nDocumented commands (type help <topic>):")
-        print("========================================")
-        print("EOF  help  quit create  destroy search  modify show import")
-
-    def do_list(self, arg):
-        """List all the items
-        """
-        print("Items:")
-        for item in self.items:
-            print(item)
-
-    def do_create(self, arg):
-        """Create a new instance of BaseModel
-        """
-        if not arg:
+    def do_create(self, args):
+        """Creates a new instance"""
+        if args:
+            if args in self.classes:
+                # class_obj = getattr(base_model, args)
+                dummy_instance = eval(args)()
+                dummy_instance.save()
+                print(dummy_instance.id)
+            else:
+                print("** class doesn't exist **")
+        else:
             print("** class name missing **")
-            return
-        try:
-            new_instance = eval(arg)()
-            new_instance.save()
-            print(new_instance.id)
-        except NameError:
-            print('** class does not exist **')
 
-    def do_destroy(self, arg):
-        """Deletes an instance based on class name and id
-        """
-        args = arg.split()
+    def do_show(self, line):
+        """Prints string representation of an instance"""
+        args = line.split()
+
         if not args:
             print("** class name missing **")
             return
-        try:
-            class_name = args[0]
-            instance_id = args[1]
-            key = f"{class_name}.{instance_id}"
-            if key in storage.all():
-                del storage.all()[key]
-                storage.save()
-            else:
-                print("** no instance found **")
-        except IndexError:
-            if args[0] not in storage.classes():
-                print("** class doesn't exist **")
-            else:
-                print("** instance id missing **")
 
-    def do_all(self, arg):
-        """Prints all string representation of instances
-        """
-        instances = []
-        if not arg:
-            for key, value in storage.all().items():
-                instances.append(str(value))
-            print(instances)
-        else:
-            try:
-                class_name = arg
-                if class_name not in storage.classes():
-                    print("** class doesn't exist **")
-                    return
-                for key, value in storage.all().items():
-                    if key.split('.')[0] == class_name:
-                        instances.append(str(value))
-                print(instances)
-            except Exception as e:
-                raise e
+        class_name = args[0]
 
-    def do_search(self, arg):
-        """Search for items that contain the given search term in their names
-        """
-        search_term = arg
-        matching_items = [item for item in self.items if search_term in item]
-        if matching_items:
-            print("Matching items:")
-            for item in matching_items:
-                print(item)
-        else:
-            print("No matching items found")
-
-    def do_update(self, arg):
-        """Updates an instance based on class name and id
-        """
-        args = arg.split()
-        if not args:
-            print('** class name missing **')
+        if class_name not in self.classes:
+            print("** class doesn't exist **")
             return
-        try:
-            class_name = args[0].lower().capitalize()
-            if class_name not in storage.classes():
-                print("** class doesn't exist **")
-                return
-            instance_id = args[1]
-            key = f"{class_name}.{instance_id}"
-            if key not in storage.all():
-                print("** no instance found **")
-                return
-            if len(args) < 3:
-                print("** attribute name missing **")
-                return
-            attribute_name = args[2]
-            if len(args) < 4:
-                print("** value missing **")
-                return
-            attribute_value = args[3]
-            instance = storage.all()[key]
 
-            if hasattr(instance, attribute_name):
-                attr_type = type(getattr(instance, attribute_name))
-                setattr(instance, attribute_name, attr_type(attribute_value))
-                instance.save()
-            else:
-                print("** attribute doesn't exist **")
-        except IndexError:
+        if len(args) < 2:
             print("** instance id missing **")
+            return
 
-    def do_show(self, arg):
-        """Prints the string representation of an instance
-        """
-        args = arg.split()
+        instance_id = args[1]
+        key = class_name + "." + instance_id
+
+        if key in models.storage.all():
+            print(models.storage.all()[key])
+        else:
+            print("** no instance found **")
+
+    def do_destroy(self, line):
+        """Deletes an instance based on the class name and id"""
+        args = line.split()
+
         if not args:
             print("** class name missing **")
             return
-        try:
-            class_name = args[0]
-            instance_id = args[1]
-            key = f"{class_name}.{instance_id}"
-            all_instances = storage.all()
-            if key in all_instances:
-                print(all_instances[key])
-            else:
-                print("** no instance found **")
-        except IndexError:
-            if args[0] not in storage.classes():
-                print("**  class doesn't exist **")
-            else:
-                print("** instance id missing **")
 
-    def do_import(self, arg):
-        """Import data from a file, where each line contains an item name
-            and its details separated by a colon
+        class_name = args[0]
+
+        if class_name not in self.classes:
+            print("** class doesn't exist **")
+            return
+
+        if len(args) < 2:
+            print("** instance id missing **")
+            return
+
+        instance_id = args[1]
+        key = class_name + "." + instance_id
+
+        if key in models.storage.all():
+            del models.storage.all()[key]
+            models.storage.save()
+        else:
+            print("** no instance found **")
+
+    def do_all(self, line):
         """
-        filename = arg
+        Prints all string representation of all
+        instances based or not on the class name
+        """
+        if line in self.classes:
+            objects = models.storage.all()
+            class_instances = [
+                str(instance) for instance in objects.values()
+                if type(instance).__name__ == line]
+            print(class_instances)
+        elif not line:
+            objects = models.storage.all()
+            all_instances = [str(instance) for instance in objects.values()]
+            print(all_instances)
+        else:
+            print("** class doesn't exist **")
+
+    def do_update(self, line):
+        """
+        Updates an instance based on the class name
+        and id by adding or updating attribute
+        """
+        args = self.custom_split(line)
+
+        if not args:
+            print("** class name missing **")
+            return
+
+        class_name = args[0]
+
+        if class_name not in self.classes:
+            print("** class doesn't exist **")
+            return
+
+        if len(args) < 2:
+            print("** instance id missing **")
+            return
+
+        instance_id = args[1]
+        key = class_name + "." + instance_id
+
+        if key not in models.storage.all():
+            print("** no instance found **")
+            return
+
+        if len(args) < 3:
+            print("** attribute name missing **")
+            return
+
+        if len(args) < 4:
+            print("** value missing **")
+            return
+
+        attribute_name = args[2]
+        attribute_value = args[3]
+        instance = models.storage.all()[key]
+
         try:
-            with open(filename, 'r') as file:
-                for line in file:
-                    item_name, details = line.strip().split(':', 1)
-                    self.items[item_name] = {'details': details}
-                print(f"Imported data from {filename}")
-        except FileNotFoundError:
-            print(f"file {filename} not found")
+            attribute_value = eval(attribute_value)
+        except (NameError, SyntaxError):
+            pass
+
+        setattr(instance, attribute_name, attribute_value)
+        models.storage.save()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     HBNBCommand().cmdloop()
